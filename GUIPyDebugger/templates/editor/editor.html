@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Editor
+{% endblock %}
+
+{% block content %}
+  <div id="editor-container">
+    <div class="code-cell border rounded p-3 mb-3">
+      <h4>In:</h4>
+      <textarea class="form-control" rows="5" placeholder="Write your Python code here..."></textarea>
+      <div class="text-end mt-2">
+        <button class="btn btn-primary run-cell" id="run-cell">Run</button>
+      </div>
+    </div>
+    <button id="add-cell" class="btn btn-secondary">Add Code Cell</button>
+  </div>
+
+  <script>
+    document.getElementById('add-cell').addEventListener('click', function () {
+      const editorContainer = document.getElementById('editor-container')
+      const newCell = document.createElement('div')
+      newCell.className = 'code-cell border rounded p-3 mb-3'
+      newCell.innerHTML = `
+                <h4>In:</h4>
+                <textarea class="form-control" rows="5" placeholder="Write your Python code here..."></textarea>
+                <div class="text-end mt-2">
+                    <button class="btn btn-primary run-cell">Run</button>
+                </div>`
+      editorContainer.insertBefore(newCell, document.getElementById('add-cell'))
+    })
+  </script>
+  <script>
+    document.getElementById('run-cell').addEventListener('click', function () {
+      alert('REMEMBER TO IMPLEMENT IN THE FUTURE')
+    })
+  </script>
+{% endblock %}
