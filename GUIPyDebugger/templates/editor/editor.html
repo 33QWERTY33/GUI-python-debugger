@@ -15,8 +15,6 @@
     
       const code = codeCellDiv.querySelector('textarea')
     
-      console.log(code.value)
-    
       fetch('', {
         method: 'POST',
         body: JSON.stringify({ code: code.value }),
