@@ -5,34 +5,67 @@
 {% endblock %}
 
 {% block content %}
+
+<script>
+  document.getElementById('add-cell').addEventListener('click', function () {
+    const editorContainer = document.getElementById('editor-container')
+    const newCell = document.createElement('div')
+  
+    newCell.className = 'code-cell border rounded p-3 mb-3'
+    newCell.innerHTML = `
+              <h4>In:</h4>
+              <form action="" method="post"> 
+                <textarea class="form-control" rows="5" id="code-cell" name="user_code"
+                placeholder="Write your Python code here..."></textarea>
+                <div class="text-end mt-2">
+                    <button class="btn btn-primary run-cell" onclick="send_code(event)">Run</button>
+                </div>
+              </form>
+              <div class="output"></div>`
+    editorContainer.insertBefore(newCell, document.getElementById('add-cell'))
+  })
+
+  function send_code(event) {
+    event.preventDefault()
+    
+    const button = event.target
+  
+    const codeCellDiv = button.closest('.code-cell')
+  
+    const code = codeCellDiv.querySelector('textarea')
+
+    console.log(code.value)
+
+    fetch('', {
+      method: 'POST',
+      body: JSON.stringify({ code: code.value }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      const output = codeCellDiv.querySelector(".output")
+      output.innerHTML = '<p>'+ data.output +'</p>'
+    })
+    .catch(error => {
+      console.error('[Error]', error)
+    })
+  }
+</script>
+
+
   <div id="editor-container">
     <div class="code-cell border rounded p-3 mb-3">
       <h4>In:</h4>
-      <textarea class="form-control" rows="5" placeholder="Write your Python code here..."></textarea>
-      <div class="text-end mt-2">
-        <button class="btn btn-primary run-cell" id="run-cell">Run</button>
-      </div>
+      <form class="form" action="" method="post">
+        <textarea class="form-control" rows="5" name="user_code" placeholder="Write your Python code here..."></textarea>
+        <div class="text-end mt-2">
+          <button class="btn btn-primary run-cell" onclick="send_code(event)">Run</button>
+        </div>
+      </form>
+      <div class="output"></div>
     </div>
     <button id="add-cell" class="btn btn-secondary">Add Code Cell</button>
   </div>
-
-  <script>
-    document.getElementById('add-cell').addEventListener('click', function () {
-      const editorContainer = document.getElementById('editor-container')
-      const newCell = document.createElement('div')
-      newCell.className = 'code-cell border rounded p-3 mb-3'
-      newCell.innerHTML = `
-                <h4>In:</h4>
-                <textarea class="form-control" rows="5" placeholder="Write your Python code here..."></textarea>
-                <div class="text-end mt-2">
-                    <button class="btn btn-primary run-cell">Run</button>
-                </div>`
-      editorContainer.insertBefore(newCell, document.getElementById('add-cell'))
-    })
-  </script>
-  <script>
-    document.getElementById('run-cell').addEventListener('click', function () {
-      alert('REMEMBER TO IMPLEMENT IN THE FUTURE')
-    })
-  </script>
 {% endblock %}
