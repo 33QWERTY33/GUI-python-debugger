@@ -46,6 +46,7 @@ def editor(request):
         # set stdout back to normal
 
         output = output.replace("\n", "<br>")
+        # HTML ignores newline character, so replace that char with a break tag
 
         return JsonResponse({"output": output})
         # return a JSON object storing the string results of the execution

@@ -19,7 +19,10 @@ def main():
             "forget to activate a virtual environment?"
         ) from exc
     
-    # INSERTING ZMQ SOCKET THREADS HERE
+    if 'runserver' in sys.argv:
+        sys.argv.append('--noreload')
+        # add noreload every time to prevent zmq socket weirdness
+
     rep_thread = threading.Thread(target=create_rep_socket, name="REPSocketThread")
     req_thread = threading.Thread(target=create_req_socket, name="REQSocketThread")
 
