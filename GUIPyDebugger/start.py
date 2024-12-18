@@ -4,6 +4,10 @@ import sys
 
 collector.setup(r"static\code_files")
 
+if len(sys.argv) == 1:
+    sys.argv.append(".")
+    # script defaults to cwd with no argument
+
 status = collector.main(sys.argv[1], r"static\code_files") # this is src and destination paths
 
 del sys.argv[1]
@@ -11,6 +15,6 @@ del sys.argv[1]
 
 sys.argv.append("runserver")
 # this start script will also run the server
-# that will be useful when creating a python entry point script during pa
+# that will be useful when creating a python entry point script
 if status != False:
     manage.main()
