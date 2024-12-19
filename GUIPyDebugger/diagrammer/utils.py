@@ -1,4 +1,5 @@
 import importlib
+from io import StringIO
 import os
 import sys
 
@@ -31,13 +32,25 @@ def dynamic_import(entry_point_name, entry_point_path):
 
     sys.modules[entry_point_name] = module
 
+    temp_stdout = StringIO()
+
+    sys.stdout = temp_stdout
+    # redirected so print statements from code do not run in main console
+    # I might throw the output in a text file later
+
     try:
         spec.loader.exec_module(module)
     except ImportError as e:
+        sys.stdout = sys.__stdout__
         print(f"Error while loading module {entry_point_name}: {e}")
         print("Modules with code other than python cannot be dynamically imported such as numpy")
+        raise ImportError
     except FileNotFoundError as e:
-        print(f"Error while loading module {entry_point_name}: {e}")
-        print("Hard coded file paths do not work yet")
+        sys.stdout = sys.__stdout__
+        print(f"Error while loading module: {entry_point_name}: {e}")
+        print("Hard coded file paths in source code do not work yet")
+        raise FileNotFoundError
+
+    sys.stdout = sys.__stdout__
 
     return module

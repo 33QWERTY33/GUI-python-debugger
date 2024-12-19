@@ -62,22 +62,22 @@ import another_one
             # positions=specific info like line and columns
 
 
-# print(inspect.getsource(dm))
+print(inspect.getsource(dm))
 
 
-# print(inspect.signature(another_one.func1))
+print(inspect.signature(another_one.func1))
 
 
-# print(inspect.getmembers(d,.SomeClass))
+print(inspect.getmembers(dm.SomeClass))
 
 
-# print(inspect.getmembers(another_one.func1.__code__))
+print(inspect.getmembers(another_one.func1.__code__))
 
 
-# print(inspect.getmodule(dm))
+print(inspect.getmodule(dm))
 
 
-# print(inspect.classify_class_attrs(dm.SomeClass))
+print(inspect.classify_class_attrs(dm.SomeClass))
 
 
 # lines = []
@@ -88,23 +88,33 @@ import another_one
 # print(inspect.getblock(lines))
 
 
-# print(inspect.getdoc(dm.SomeClass))
+print(inspect.getdoc(dm.SomeClass))
+
+class Test:
+    '''Testing The 
+    Docstring'''
+    attr = "wassup"
+    def __init__(self):
+	    pass
+
+def test_currentframe():
+    """
+    Docstring
+    but with double quotes
+    """
+    frame = inspect.currentframe()
+    another_var = "can you see me?"
+    print(f"called from: {frame.f_back.f_locals}")
+    # result: called from: test_currentframe
+
+test_currentframe()
 
 
-# def test_currentframe():
-#     frame = inspect.currentframe()
-#     another_var = "can you see me?"
-#     print(f"called from: {frame.f_back.f_locals}")
-#     # result: called from: test_currentframe
+def test_stack1():
+    pprint(inspect.stack())
+    # result: a list of frames
 
-# test_currentframe()
+def test_stack2():
+    test_stack1()
 
-
-# def test_stack1():
-#     pprint(inspect.stack())
-#     # result: a list of frames
-
-# def test_stack2():
-#     test_stack1()
-
-# test_stack2()
+test_stack2()

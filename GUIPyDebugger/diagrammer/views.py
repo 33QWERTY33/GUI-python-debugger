@@ -22,17 +22,48 @@ def diagram(request):
     sys.path.append(module_path)
 
     if diagrammer.venv_path != "":
-        sys.path.append(str(os.path.join(settings.STATICFILES_DIRS[0], "code_files", diagrammer.venv_path, "Lib", "site-packages")))
-        
-    # find some way to include the virtual environment directory!!
+        sys.path.append(str(os.path.join(
+                settings.STATICFILES_DIRS[0], 
+                "code_files", diagrammer.venv_path,
+                "Lib",
+                "site-packages")))
+        # this includes packages installed in a virtual environment
 
-    module = utils.dynamic_import(entry_point_name, entry_point_path)
-    # dynamic import logic
+    try:
+        module = utils.dynamic_import(entry_point_name, entry_point_path)
+        # dynamic import logic
+    except SyntaxError as e:
+        return render(request, "diagrammer/syntax-error.html", {
+            "error_msg": e.msg, 
+            "error_text": e.text,
+            "error_file": e.filename,
+            "error_line": e.lineno})
+    except FileNotFoundError as e:
+        return render(request, "diagrammer/syntax-error.html", {
+                "error_msg": e.msg, 
+                "error_text": e.text,
+                "error_file": e.filename,
+                "error_line": e.lineno})
+        # this page is for syntax error, create more informational page later
+    except ImportError as e:
+            return render(request, "diagrammer/syntax-error.html", {
+                "error_msg": e.msg, 
+                "error_text": e.text,
+                "error_file": e.filename,
+                "error_line": e.lineno})
+        # this page is for syntax error, create more informational page later
 
     submodules = module_info.get_submodules(code)
 
+    blocks = module_info.get_blocks(module)
+
+    # The goal is to eventually marry these data structures into one hierarchy
+    # Currently the submodules are sorted alphabetically
+    # Their contents on the diagram window are unrelated to them
+
     info = {
-        "submodules": submodules
+        "submodules": submodules,
+        "blocks": blocks
     }
 
     return render(request, 'diagrammer/diagram.html', info)
