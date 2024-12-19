@@ -7,8 +7,9 @@
 {% block content %} 
 <div class="container mt-4">
     <h2 class="mb-3">Collapsible Hierarchical List</h2>
+    {% for submodule in submodules %}
     <details>
-        <summary>Item 1</summary>
+        <summary><img src="../../static/images/module.png" height="25px", width="25px"></img>   {{ submodule }}</summary>
         <ul>
             <li>Sub-item 1.1</li>
             <li>Sub-item 1.2</li>
@@ -23,12 +24,6 @@
             </li>
         </ul>
     </details>
-    <details>
-        <summary>Item 2</summary>
-        <ul>
-            <li>Sub-item 2.1</li>
-            <li>Sub-item 2.2</li>
-        </ul>
-    </details>
+    {% endfor %}
 </div>
 {% endblock %}

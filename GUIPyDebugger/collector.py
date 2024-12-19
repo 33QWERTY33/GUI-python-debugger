@@ -1,10 +1,9 @@
 import os
 import shutil
 
-def path_trimmer(file_paths, file_contents, folders):
-    print(len(file_contents))
-    print(len(file_paths))
-    folder_prefix = os.path.commonpath(folders)
+def path_trimmer(file_paths, file_contents, folders, venv_path=""):
+
+    folder_prefix = os.path.commonpath(folders) if len(folders) > 0 else ""
     file_prefix = os.path.commonpath(file_paths)
     # isolates the common base from paths such as ../../Project
 
@@ -22,7 +21,7 @@ def path_trimmer(file_paths, file_contents, folders):
         trimmed_files.append(file[file_prefix_len+1:])
     # populate trimmed path lists
     
-    return list(zip(trimmed_files, file_contents)), trimmed_folders
+    return list(zip(trimmed_files, file_contents)), trimmed_folders, venv_path[folder_prefix_len+1:]
 
 def create_folders(src_path, dest_path, folder_paths):
     os.makedirs(dest_path)   # recreate the destination path
@@ -34,9 +33,6 @@ def create_folders(src_path, dest_path, folder_paths):
             src_path = src_path.lstrip("..\\")
         # sometimes the user will place a different seperator which powershell supports
         
-        os.makedirs(os.path.join(dest_path, src_path))
-        # when reading only files from dir, parent dir needs to be created
-
     for folder in folder_paths:
         print("Creating: ", folder)
         if not os.path.isdir(os.path.join(dest_path, folder)):
@@ -47,8 +43,18 @@ def create_files(dest_path, file_tree_info):
         print("Creating: ", file[0])
         file_path = file[0]
 
-        with open(os.path.join(dest_path, file_path), "w") as new_file:
-            new_file.write(file[1])
+        try:
+            with open(os.path.join(dest_path, file_path), "w") as new_file:
+                new_file.write(file[1])
+        except PermissionError as e:
+            print(f"[ERROR] Permission denied for: {file_path}. Skipping...")
+            continue
+        except FileNotFoundError as e:
+            print(f"[ERROR] File Not Found: {file_path}. Skipping...")
+    
+    with open(os.path.join(dest_path, "__init__.py"), "w"):
+        pass
+    # make the code_files directory a module
 
 def setup(dest_path):
     if os.path.isdir(dest_path):
@@ -64,9 +70,12 @@ def read(file_path):
     except UnicodeDecodeError as e:
         return ""
 
-def collector(path, file_paths = [], file_contents = [], folder_paths = []): #lists are instantiated on function definition
+def collector(path, file_paths = [], file_contents = [], folder_paths = [], venv_path = []): #lists are instantiated on function definition
     results = os.listdir(path)
+    if is_venv(path, results):
+        venv_path.append(path)
     for result in results:
+        print("Spawning search job for: ", result)
         if result == os.path.basename(__file__):  #don't duplicate the file that is running the script
             continue    # not a problem if collector script isn't inside of the file tree being read
         relative_path = os.path.join(path, result)
@@ -80,7 +89,13 @@ def collector(path, file_paths = [], file_contents = [], folder_paths = []): #li
             file_contents.append(file_content)
             # append file contents and file paths to respective lists
 
-    return file_paths, file_contents, folder_paths
+    return file_paths, file_contents, folder_paths, venv_path
+
+def is_venv(path, results):
+    if "Include" in results and "Lib" in results and "Scripts" in results:
+        return path
+    else:
+        return ""
 
 def main(src_path, dest_path):  
     if not os.path.isdir(src_path):
@@ -91,10 +106,17 @@ def main(src_path, dest_path):
         print("[ERROR] Only relative paths are supported")
         return False
 
-    file_paths, file_contents, folder_paths = collector(src_path)
+    file_paths, file_contents, folder_paths, venv_path = collector(src_path)
 
-    file_tree_info, folder_paths = path_trimmer(file_paths, file_contents, folder_paths)
+    if len(venv_path) != 0:
+        file_tree_info, folder_paths, venv_path = path_trimmer(
+                        file_paths, file_contents, folder_paths, venv_path)
+    else:
+                file_tree_info, folder_paths, venv_path = path_trimmer(
+                        file_paths, file_contents, folder_paths)
 
     create_folders(src_path, dest_path, folder_paths)
 
     create_files(dest_path, file_tree_info)
+
+    return venv_path

@@ -1,1 +1,0 @@
-This requires the installation of the keyboard library unfortunately. All settings are adjustable in the Settings text file. I never added audio to the game though.
