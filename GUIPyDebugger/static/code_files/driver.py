@@ -80,12 +80,12 @@ print(inspect.getmodule(dm))
 print(inspect.classify_class_attrs(dm.SomeClass))
 
 
-# lines = []
+lines = []
 
-# with open("another_one.py", "r") as another_one_contents:
-#     lines = another_one_contents.readlines()
+with open("another_one.py", "r") as another_one_contents:
+    lines = another_one_contents.readlines()
 
-# print(inspect.getblock(lines))
+print(inspect.getblock(lines))
 
 
 print(inspect.getdoc(dm.SomeClass))

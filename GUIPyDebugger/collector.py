@@ -3,9 +3,10 @@ import shutil
 
 def path_trimmer(file_paths, file_contents, folders, venv_path=""):
 
-    folder_prefix = os.path.commonpath(folders) if len(folders) > 0 else ""
-    file_prefix = os.path.commonpath(file_paths)
+    folder_prefix = os.path.commonpath(folders) if len(folders) > 1 else ""
+    file_prefix = os.path.commonpath(file_paths) if len(file_paths) > 1 else ""
     # isolates the common base from paths such as ../../Project
+    # removing instance of 1 element list because commonpath returns whole string if there's one elem
 
     trimmed_folders, trimmed_files = [], []
     # create the trimmed path lists
@@ -14,25 +15,23 @@ def path_trimmer(file_paths, file_contents, folders, venv_path=""):
     file_prefix_len = len(file_prefix)
     # get length of prefix, should make slicing faster
 
-    for folder in folders:
-        trimmed_folders.append(folder[folder_prefix_len+1:])
-
-    for file in file_paths:
-        trimmed_files.append(file[file_prefix_len+1:])
-    # populate trimmed path lists
+    if len(file_paths) == 1:
+        trimmed_files.append(os.path.basename(file_paths[0]))
+    else:
+        for file in file_paths:
+            trimmed_files.append(file[file_prefix_len+1:])
+        # populate trimmed path lists
+    if len(folders) == 1:
+        trimmed_folders.append(os.path.basename(folders[0]))
+    else:
+        for folder in folders:
+            trimmed_folders.append(folder[folder_prefix_len+1:])
     
     return list(zip(trimmed_files, file_contents)), trimmed_folders, venv_path[folder_prefix_len+1:]
 
-def create_folders(src_path, dest_path, folder_paths):
+def create_folders(dest_path, folder_paths):
     os.makedirs(dest_path)   # recreate the destination path
     
-    if len(folder_paths) == 0:
-        len_original_src_path = len(src_path)
-        src_path = src_path.lstrip("../")
-        if len_original_src_path == len(src_path):
-            src_path = src_path.lstrip("..\\")
-        # sometimes the user will place a different seperator which powershell supports
-        
     for folder in folder_paths:
         print("Creating: ", folder)
         if not os.path.isdir(os.path.join(dest_path, folder)):
@@ -51,10 +50,11 @@ def create_files(dest_path, file_tree_info):
             continue
         except FileNotFoundError as e:
             print(f"[ERROR] File Not Found: {file_path}. Skipping...")
-    
-    with open(os.path.join(dest_path, "__init__.py"), "w"):
-        pass
-    # make the code_files directory a module
+            
+    if not os.path.isfile(os.path.join(dest_path, "__init__.py")):
+        with open(os.path.join(dest_path, "__init__.py"), "w"):
+            pass
+        # make the code_files directory a module if it isn't already
 
 def setup(dest_path):
     if os.path.isdir(dest_path):
@@ -75,15 +75,16 @@ def collector(path, file_paths = [], file_contents = [], folder_paths = [], venv
     if is_venv(path, results):
         venv_path.append(path)
     for result in results:
-        print("Spawning search job for: ", result)
         if result == os.path.basename(__file__):  #don't duplicate the file that is running the script
             continue    # not a problem if collector script isn't inside of the file tree being read
         relative_path = os.path.join(path, result)
         if os.path.isdir(relative_path):
+            print("Spawning search job for: ", result)
             collector(relative_path)
             folder_paths.append(relative_path)
             # append folder paths to folder_paths
         else:
+            print("Spawning read job for: ", result)
             file_content = read(os.path.join(path, result))
             file_paths.append(os.path.join(path, result))
             file_contents.append(file_content)
@@ -101,10 +102,6 @@ def main(src_path, dest_path):
     if not os.path.isdir(src_path):
         print("[ERROR] Path Not Found: ", src_path)
         return False
-    
-    if ":" in src_path:
-        print("[ERROR] Only relative paths are supported")
-        return False
 
     file_paths, file_contents, folder_paths, venv_path = collector(src_path)
 
@@ -115,7 +112,7 @@ def main(src_path, dest_path):
                 file_tree_info, folder_paths, venv_path = path_trimmer(
                         file_paths, file_contents, folder_paths)
 
-    create_folders(src_path, dest_path, folder_paths)
+    create_folders(dest_path, folder_paths)
 
     create_files(dest_path, file_tree_info)
 

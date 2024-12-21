@@ -38,19 +38,28 @@ def dynamic_import(entry_point_name, entry_point_path):
     # redirected so print statements from code do not run in main console
     # I might throw the output in a text file later
 
+    original_dir = os.getcwd()
+    entry_dir = entry_point_path.rstrip(os.path.basename(entry_point_path))
+    # for changing directories to make file IO work during execution
+
     try:
+        # remove the filename from the path, that is the context the script is meant to run in
+        os.chdir(entry_dir)
         spec.loader.exec_module(module)
     except ImportError as e:
+        os.chdir(original_dir)
         sys.stdout = sys.__stdout__
         print(f"Error while loading module {entry_point_name}: {e}")
         print("Modules with code other than python cannot be dynamically imported such as numpy")
         raise ImportError
     except FileNotFoundError as e:
+        os.chdir(original_dir)
         sys.stdout = sys.__stdout__
         print(f"Error while loading module: {entry_point_name}: {e}")
-        print("Hard coded file paths in source code do not work yet")
         raise FileNotFoundError
 
+    os.chdir(original_dir)
     sys.stdout = sys.__stdout__
+    # restore stdout and directory
 
     return module
