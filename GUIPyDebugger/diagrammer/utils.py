@@ -63,3 +63,4 @@ def dynamic_import(entry_point_name, entry_point_path):
     # restore stdout and directory
 
     return module
+

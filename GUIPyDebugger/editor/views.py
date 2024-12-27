@@ -1,15 +1,22 @@
 import io
 import json
 import sys
+from . import utils
+import diagrammer.views as project_info
+
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
-
-# Display the text box for editing
 @csrf_exempt
 def editor(request):
+    if not project_info.entry_point_path:
+        return render(request, "editor/no-entry-point.html")
+    else:
+        debug_shell = utils.Debugger(project_info.entry_point_path)
+    # Create a programmatically controllable debugger instance
+
     if request.method == "POST":
 
         output = ""
@@ -18,37 +25,30 @@ def editor(request):
         data = json.loads(request.body)
         # deserialize json object 
 
-        code = data.get('code')
-        # get the value under "code" key
+        if data.get("handler") == "Code Executor":
+            output_buffer = io.StringIO()
+            # Redirect standard output to the in-memory buffer
+            sys.stdout = output_buffer
 
-        output_buffer = io.StringIO()
-        # Create an in-memory buffer
+            code = data.get('code')
+            # get the value under "code" key
 
-        sys.stdout = output_buffer
-        # redirect standard output to the in memory buffer
-
-        try:
-            # happy path
-            exec(code)
-            # execute the received code
-
-            sys.stdout.flush()
-            # ensure the in-memory buffer actually receives the data in stdout
+            output = exec(code)
 
             output = output_buffer.getvalue()
-            # store in-memory buffer contents inside of output variable for display on GUI
-            
-        except Exception as e:
-            output = str(e)
-            # capture errors if interpreter raises one
+            output = output.replace("\n", "<br>")  # Replace newlines with HTML break tags
 
-        sys.stdout = sys.__stdout__
-        # set stdout back to normal
+            sys.stdout = sys.__stdout__  # Restore stdout
 
-        output = output.replace("\n", "<br>")
-        # HTML ignores newline character, so replace that char with a break tag
+            return JsonResponse({"output": output})
+            # return a JSON object storing the string results of the execution
+        if data.get("handler") == "PDB Command":
+            command = data.get("pdb_command")
+            # isolate the desired command
 
-        return JsonResponse({"output": output})
-        # return a JSON object storing the string results of the execution
+            output= debug_shell.execute_debug_cmd(command)
+
+            return JsonResponse({"output": output})
+            # return a JSON object storing the string results of the execution
 
     return render(request, 'editor/editor.html')

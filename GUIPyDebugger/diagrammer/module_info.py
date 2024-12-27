@@ -1,5 +1,4 @@
 import ast
-import inspect
 import os
 import pkgutil
 import re
@@ -16,64 +15,70 @@ def get_submodules(code):
     
     return submodules
 
+def skip_comments_and_docstrings(src_code, line_no):
+    line = src_code[line_no].strip()
+
+    if not line or line.startswith("#"):
+        line_no += 1
+    # skips blank lines and comments
+
+    if line.startswith("'''") or line.startswith('"""'):
+        docstring_term_line_no = False
+        if line.endswith("'''") or line.endswith('"""'):
+            line_no += 1
+            docstring_term_line_no = True
+        while not docstring_term_line_no:
+            line_no += 1
+            line = src_code[line_no].strip()
+            if "'''" in line or '"""' in line:
+                line_no += 1
+                break
+
+    return line_no
+
 def get_blocks(name, path):
     with open(os.path.join(path, name + ".py"), "r") as python_file:
-        # fixing some weirdness with how pkgutil.walk_packages represents module names
-        src_code = python_file.read().split("\n")
-        
+        src_code = python_file.read()
+    
+    tree = ast.parse(src_code)
     blocks = []
-    line_numbers = []
-    docstrings = []
-    is_func = []
-    is_class = []
-    line_no = 0
-    while True:
-        try:
-            block = inspect.getblock(src_code[line_no:])
-            # slice the source code, get the first block, append it
-        except Exception as e:
-            print("[ERROR] likely EOF token causing trouble")
-            break
 
-        if len(block) > 1:
-            # getblock returns '' or just the line if there is no detected block so there is always 1 element
-            line_numbers.append(line_no + 1)
-            docstrings.append(get_docstring(block))
-            is_func.append(block[0][:3] == "def")
-            is_class.append(block[0][:5] == "class")
+    for node in tree.body:  # Iterate over top-level nodes
+        if isinstance(node, ast.FunctionDef):
+            # Top-level function
+            block = {
+                "type": "function",
+                "name": node.name,
+                "line_no": node.lineno,
+                "docstring": ast.get_docstring(node),
+                "args": [arg.arg for arg in node.args.args],
+                "contents": ast.unparse(node) if hasattr(ast, "unparse") else "",
+            }
+            blocks.append(block)
+        elif isinstance(node, ast.ClassDef):
+            # Top-level class
+            class_methods = []
+            for class_node in node.body:
+                if isinstance(class_node, ast.FunctionDef):
+                    method = {
+                        "name": class_node.name,
+                        "line_no": class_node.lineno,
+                        "docstring": ast.get_docstring(class_node),
+                        "args": [arg.arg for arg in class_node.args.args],
+                        "contents": ast.unparse(class_node) if hasattr(ast, "unparse") else "",
+                    }
+                    class_methods.append(method)
+            block = {
+                "type": "class",
+                "name": node.name,
+                "line_no": node.lineno,
+                "docstring": ast.get_docstring(node),
+                "methods": class_methods,
+                "contents": ast.unparse(node) if hasattr(ast, "unparse") else "",
+            }
+            blocks.append(block)
 
-            if is_class[-1] == True:
-                in_class_body = True
-                line_no += len(block)
-                while in_class_body:
-                    next_block = inspect.getblock(src_code[line_no:])
-                    if "\t" in next_block[0] or "    " in next_block[0] or "     " in next_block[0]:
-                        line_no += len(next_block)
-                        for line in next_block:
-                            block.append(line)
-                    else:
-                        blocks.append(block)
-                        # append the class
-                        in_class_body = False
-                # this is because inspect.getblock treats different methods in a class as different blocks
-                # this method is almost more trouble than it's worth...
-            elif is_func[-1] == True:
-                line_no += len(block)
-                blocks.append(block)
-            else:
-                if len(src_code[line_no:]) <= 0:
-                    break
-                line_no += len(block)
-        else:
-            if len(src_code[line_no:]) <= 0:
-                break
-            else:
-                line_no += len(block)
-        # If no lines are left, then break
-
-
-    return list(zip(line_numbers, blocks, docstrings, is_func, is_class))
-    # filters out comments and doc strings
+    return blocks
 
 def get_docstring(code):
     src_code = "\n".join(code)
@@ -147,36 +152,40 @@ def master_dict_constructor(code):
 
     for name, path, ispkg in submodules:
         if ispkg:
-            pass
-        else:
-            name_slice = name[name.rfind(".") + 1:] if name.rfind(".") != -1 else name
-            # names are stored like folder.folder.file.py
-            # need to remove the folders as that info is already in the path
-            blocks = get_blocks(name_slice, path)
+            continue
+        name_slice = name[name.rfind(".") + 1:] if name.rfind(".") != -1 else name
+        blocks = get_blocks(name_slice, path)
 
-            functions = list(filter(lambda blockdata: blockdata[3] == True, blocks))
-            classes = list(filter(lambda blockdata: blockdata[4] == True, blocks))
+        functions = [block for block in blocks if block["type"] == "function"]
+        classes = [block for block in blocks if block["type"] == "class"]
 
-            # Get the blocks that specify a function
-            module = {"name": name,
-                      "path": path,
-                      "functions": [
-                          {"line_no": function[0],
-                           "signature": function[1][0][4:-1],
-                           "docstring": function[2],
-                           "locals": get_local_var_names("\n".join(function[1])),
-                           "contents": "\n".join(function[1])}
-                       for function in functions],
-                      "classes": [
-                          {"line_no": c[0],
-                           "signature": c[1][0][6:],
-                           "docstring": c[2],
-                           "instance_attrs": get_inst_attrs("\n".join(c[1])),
-                           "class_attrs": get_class_attrs("\n".join(c[1])),
-                           "methods": get_methods("\n".join(c[1])),
-                           "contents": "\n".join(c[1])}
-                       for c in classes]}
-            
-            info["modules"].append(module)
+        module = {
+            "name": name,
+            "path": path,
+            "functions": [
+                {
+                    "line_no": function["line_no"],
+                    "signature": f"{function['name']}({', '.join(function['args'])})",
+                    "docstring": function["docstring"],
+                    "locals": get_local_var_names(function["contents"]),
+                    "contents": function["contents"],
+                }
+                for function in functions
+            ],
+            "classes": [
+                {
+                    "line_no": cls["line_no"],
+                    "signature": cls["name"],
+                    "docstring": cls["docstring"],
+                    "instance_attrs": get_inst_attrs(cls["contents"]),
+                    "class_attrs": get_class_attrs(cls["contents"]),
+                    "methods": cls["methods"],
+                    "contents": cls["contents"],
+                }
+                for cls in classes
+            ],
+        }
+
+        info["modules"].append(module)
 
     return info

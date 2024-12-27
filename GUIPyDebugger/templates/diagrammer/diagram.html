@@ -75,9 +75,10 @@
                     </summary>
                     <ul>
                         {% for method in class.methods %}
-                        <li>
+                        <li class="hover-item">
                             <img src="../../static/images/function.png" height="25px" width="25px"/>
-                            {{ method }}
+                            {{ method.name }}
+                            <span class="hover-info">{{ method.line_no }}<br><br>{{ method.docstring }}</span>
                         </li>
                         {% endfor %}
                         {% for attr in class.instance_attrs %}
