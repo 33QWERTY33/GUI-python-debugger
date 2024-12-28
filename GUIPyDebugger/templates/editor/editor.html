@@ -91,6 +91,16 @@
           console.error('[Error]', error)
         })
     }
+
+    function handle_custom_pdb_command(event) {
+      event.preventDefault()
+      const commandInput = document.getElementById('pdb-command-input')
+      const command = commandInput.value.trim()
+
+      if (command) {
+        send_pdb_command(command)
+      }
+    }
   </script>
 
   <div id="editor-container">
@@ -133,6 +143,11 @@
       <button class="btn btn-outline-primary me-2" onclick="send_pdb_command('up')" title="Move up one level in the call stack.">Up</button>
       <button class="btn btn-outline-primary me-2" onclick="send_pdb_command('down')" title="Move down one level in the call stack.">Down</button>
       <button class="btn btn-outline-primary me-2" onclick="send_pdb_command('where')" title="Print the stack trace with the most recent frame at the bottom.">Where</button>
+    </div>
+
+    <div class="mb-3">
+      <input id="pdb-command-input" type="text" class="form-control" placeholder="Enter Custom Command">
+      <button class="btn btn-outline-primary mt-2" onclick="handle_custom_pdb_command(event)">Send Command</button>
     </div>
 
     <div class="pdb-output border rounded p-2" style="height: 200px; overflow-y: scroll;">
