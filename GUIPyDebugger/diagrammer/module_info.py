@@ -43,9 +43,8 @@ def get_blocks(name, path):
     tree = ast.parse(src_code)
     blocks = []
 
-    for node in tree.body:  # Iterate over top-level nodes
+    for node in tree.body:
         if isinstance(node, ast.FunctionDef):
-            # Top-level function
             block = {
                 "type": "function",
                 "name": node.name,
@@ -56,7 +55,6 @@ def get_blocks(name, path):
             }
             blocks.append(block)
         elif isinstance(node, ast.ClassDef):
-            # Top-level class
             class_methods = []
             for class_node in node.body:
                 if isinstance(class_node, ast.FunctionDef):

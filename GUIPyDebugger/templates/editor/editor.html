@@ -34,7 +34,47 @@
   </script>
 
   <script>
+    function handle_break(command) {
+      purpose = prompt("Setting breakpoint on a line number (enter l) \nSetting breakpoint on function (enter f)\n list breakpoints (enter anything)?")
+      if (purpose == "l") {
+        line_number = prompt("Enter the line number: ")
+        command += " " + line_number
+      }
+      else if (purpose == "f") {
+        func_name = prompt("Enter the function name: ")
+        command += " " + func_name
+      }
+      return command
+    }
+
+    function handle_breakpoint_management(command) {
+      return command += " " + prompt("Enter the breakpoint number:")
+    }
+
+    function handle_return(command) {
+      manual_return = prompt("Would you like to manually return a value? (y/n)")
+      if (manual_return == "y") {
+        value = prompt("Enter a value")
+        command += " " + value
+      }
+      return command
+    }
+
     function send_pdb_command(command) {
+      if (command == "break") {
+        command = handle_break(command)
+      } else if (command == "disable" || command == "enable" || command == "clear") {
+        command = handle_breakpoint_management(command)
+      } else if (command == "return") {
+        command = handle_return(command)
+      } else if (command == "jump") {
+        command += " " + prompt("Enter the line number you would like to jump to:")
+      } else if (command == "p" || command == "whatis") {
+        command += " " + prompt("Enter the name of the expression you would like to print:")
+      } else if (command == "source") {
+        command += " " + prompt("Enter the name of the object you would like to see the source code for:")
+      }
+
       fetch('', {
         method: 'POST',
         body: JSON.stringify({ pdb_command: command, handler: 'PDB Command' }),
@@ -71,7 +111,7 @@
     <h4>PDB Shell</h4>
     <div class="button-group mb-3">
       <h5>Execution Control</h5>
-      <button class="btn btn-outline-primary me-2" onclick="send_pdb_command('b')" title="Set a breakpoint at a specific line or function.">Break</button>
+      <button class="btn btn-outline-primary me-2" onclick="send_pdb_command('break')" title="Set a breakpoint at a specific line or function.">Break</button>
       <button class="btn btn-outline-primary me-2" onclick="send_pdb_command('disable')" title="Disable a breakpoint by specifying its line number.">Disable Breakpoint</button>
       <button class="btn btn-outline-primary me-2" onclick="send_pdb_command('enable')" title="Enable a breakpoint by specifying its line number.">Enable Breakpoint</button>
       <button class="btn btn-outline-primary me-2" onclick="send_pdb_command('clear')" title="Clear all or specific breakpoints.">Clear Breakpoints</button>
@@ -107,7 +147,7 @@
     
       newCell.className = 'code-cell border rounded p-3 mb-3'
       newCell.innerHTML = `
-                          <h4>In:</h4>
+                          <h4>Experimentation Here</h4>
                           <form action="" method="post"> 
                             <textarea class="form-control" rows="5" id="code-cell" name="user_code"
                             placeholder="Write your Python code here..."></textarea>

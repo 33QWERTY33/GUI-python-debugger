@@ -8,13 +8,12 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
+if project_info.entry_point_path:
+    debug_shell = utils.Debugger(project_info.entry_point_path)
+
 # Create your views here.
 @csrf_exempt
 def editor(request):
-    if not project_info.entry_point_path:
-        return render(request, "editor/no-entry-point.html")
-    else:
-        debug_shell = utils.Debugger(project_info.entry_point_path)
     # Create a programmatically controllable debugger instance
 
     if request.method == "POST":
