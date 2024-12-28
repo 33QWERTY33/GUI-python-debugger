@@ -3,7 +3,7 @@ import sys
 import pdb
 import subprocess
 import time
-import re
+import html
 
 class Debugger(pdb.Pdb):
     def __init__(self, filepath):
@@ -38,6 +38,8 @@ class Debugger(pdb.Pdb):
 
         self.output_file.seek(0)
         output = self.output_file.readlines()
+
+        output = [html.escape(out.lstrip("\x00")) for out in output]
 
         output = ("<br>".join(output)).replace("(Pdb)", "")
 
