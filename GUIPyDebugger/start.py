@@ -20,6 +20,8 @@ def start():
     sys.argv.append("runserver")
     # this start script will also run the server
 
+    sys.argv.append("0.0.0.0:8000")
+
     if result != False:
         diagrammer.venv_path = result
         manage.main()
