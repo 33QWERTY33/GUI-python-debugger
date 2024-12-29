@@ -35,17 +35,22 @@ def editor(request):
             output = exec(code)
 
             output = output_buffer.getvalue()
-            output = output.replace("\n", "<br>")  # Replace newlines with HTML break tags
+            output = output.replace("\n", "<br>")  
+            # Replace newlines with HTML break tags
 
-            sys.stdout = sys.__stdout__  # Restore stdout
+            sys.stdout = sys.__stdout__ 
+            # Restore stdout
 
             return JsonResponse({"output": output})
-            # return a JSON object storing the string results of the execution
         if data.get("handler") == "PDB Command":
             command = data.get("pdb_command")
             # isolate the desired command
-
-            output= debug_shell.execute_debug_cmd(command)
+            try:
+                output= debug_shell.execute_debug_cmd(command)
+            except NameError as e:
+                print("\n[ERROR] No entry point was placed in a python file")
+                print("Please place #ENTRY on line one of the file you would like to debug\n")
+                output = "Please specify an entry point for the debug shell"
 
             return JsonResponse({"output": output})
             # return a JSON object storing the string results of the execution

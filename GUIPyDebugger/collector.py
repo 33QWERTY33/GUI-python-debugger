@@ -116,4 +116,6 @@ def main(src_path, dest_path):
 
     create_files(dest_path, file_tree_info)
 
+    print("\nYour debugging server can be found at >>> \033[34m http://127.0.0.1:8000\n \033[0m")
+
     return venv_path
