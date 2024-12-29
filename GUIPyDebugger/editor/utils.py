@@ -1,11 +1,9 @@
 import os
 import sys
-import pdb
 import subprocess
 import time
-import html
 
-class Debugger(pdb.Pdb):
+class Debugger():
     def __init__(self, filepath):
 
         self.output_file = open("output.txt", "r+")
@@ -19,11 +17,12 @@ class Debugger(pdb.Pdb):
         shell=True,
         bufsize=1
         )
+        # this is the actual process with interactions routed to different places
 
         sys.argv = [filepath]
         sys.path.append(os.path.dirname(filepath))
+        # because parent process is not in debug subjects env, artificially create it
 
-        super().__init__()
 
     def execute_debug_cmd(self, command):
         self.output_file.truncate(0)
@@ -33,14 +32,19 @@ class Debugger(pdb.Pdb):
         # mimic standard pdb shell interaction
 
         time.sleep(0.2)
+        # giving time to ensure response
 
         self.output_file.flush()
 
         self.output_file.seek(0)
+        # set the cursor back to the first index
         output = self.output_file.readlines()
+        # read till EOF
 
-        output = [html.escape(out.lstrip("\x00")) for out in output]
+        output = [out.lstrip("\x00") for out in output]
+        # get rid of padding for elements (there's quite a bit hopefully it'll avoid issues)
 
         output = ("".join(output)).replace("(Pdb)", "")
+        # convert to string and remove pdb prompt
 
         return output
