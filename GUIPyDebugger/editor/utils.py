@@ -41,6 +41,6 @@ class Debugger(pdb.Pdb):
 
         output = [html.escape(out.lstrip("\x00")) for out in output]
 
-        output = ("<br>".join(output)).replace("(Pdb)", "")
+        output = ("".join(output)).replace("(Pdb)", "")
 
         return output

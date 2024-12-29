@@ -85,9 +85,7 @@
         .then((response) => response.json())
         .then((data) => {
           const output = document.querySelector('.pdb-output')
-          output.innerHTML = `<p>${data.output}</p>`
-
-          console.log(data.output)
+          output.innerHTML = `<pre>${data.output}</pre>`
         })
         .catch((error) => {
           console.error('[Error]', error)
