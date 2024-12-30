@@ -3,10 +3,16 @@ import shutil
 
 def path_trimmer(file_paths, file_contents, folders, venv_path=""):
 
+    file_paths = [os.path.normpath(path) for path in file_paths]
+    folders = [os.path.normpath(folder) for folder in folders]
+    # normalizing all of the paths to avoid malformed paths after trimming
+
     folder_prefix = os.path.commonpath(folders) if len(folders) > 1 else ""
     file_prefix = os.path.commonpath(file_paths) if len(file_paths) > 1 else ""
     # isolates the common base from paths such as ../../Project
     # removing instance of 1 element list because commonpath returns whole string if there's one elem
+
+    print(file_prefix)
 
     trimmed_folders, trimmed_files = [], []
     # create the trimmed path lists

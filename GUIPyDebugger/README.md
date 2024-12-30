@@ -50,15 +50,15 @@ The **Graphical Python Debugger** is a network-enabled debugging tool designed t
 
 4. Access the debugger via your web browser at `http://<host_ip>:<port>`.
 
+Or just run 'pip install GUIPyDebugger'
+
 ---
 
 ## Usage
 
 ### Starting a Debugging Session
-1. Specify the directory containing Python files.
-2. Use the generated diagram to:
-   - Explore file relationships.
-   - Navigate to specific source code.
+1. Specify the directory containing Python files via the command line tool 'gui_pdb'
+2. The command should look like 'gui_pdb <file_path>'
 
 ### Experimentation Window
 - Open the experimentation panel.

@@ -15,6 +15,10 @@ GUIPyDebugger.egg-info/dependency_links.txt
 GUIPyDebugger.egg-info/entry_points.txt
 GUIPyDebugger.egg-info/requires.txt
 GUIPyDebugger.egg-info/top_level.txt
+GUIPyDebugger/__pycache__/__init__.cpython-312.pyc
+GUIPyDebugger/__pycache__/settings.cpython-312.pyc
+GUIPyDebugger/__pycache__/urls.cpython-312.pyc
+GUIPyDebugger/__pycache__/wsgi.cpython-312.pyc
 about/__init__.py
 about/admin.py
 about/apps.py
@@ -49,11 +53,11 @@ editor/views.py
 editor/migrations/__init__.py
 static/__init__.py
 static/code_files/__init__.py
-static/code_files/another_one.py
-static/code_files/driver.py
-static/code_files/dummy_module.py
-static/code_files/test/__init__.py
-static/code_files/test/cool_code.py
+static/code_files/csp.py
+static/code_files/map_coloring.py
+static/code_files/queens.py
+static/code_files/send_more_money.py
+static/code_files/word_search.py
 static/images/__init__.py
 static/images/attribute.png
 static/images/class.png

@@ -14,7 +14,7 @@
     
       const code = codeCellDiv.querySelector('textarea')
     
-      fetch('', {
+      fetch(window.location.href, {
         method: 'POST',
         body: JSON.stringify({ code: code.value, handler: 'Code Executor' }),
         headers: {
@@ -25,6 +25,8 @@
         .then((data) => {
           const output = codeCellDiv.querySelector('.output')
           output.innerHTML = '<p>' + data.output + '</p>'
+
+          console.log("OUTPUT >> " + data.output)
         })
         .catch((error) => {
           console.error('[Error]', error)

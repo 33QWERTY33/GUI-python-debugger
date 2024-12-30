@@ -1,6 +1,8 @@
 import io
 import json
 import sys
+import traceback
+
 from . import utils
 from diagrammer import views as project_info
 
@@ -10,12 +12,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 if project_info.entry_point_path:
     debug_shell = utils.Debugger(project_info.entry_point_path)
+    # Create a programmatically controllable debugger instance
 
 # Create your views here.
 @csrf_exempt
 def editor(request):
-    # Create a programmatically controllable debugger instance
-
     if request.method == "POST":
 
         output = ""
@@ -28,20 +29,29 @@ def editor(request):
             output_buffer = io.StringIO()
             # Redirect standard output to the in-memory buffer
             sys.stdout = output_buffer
+            sys.stderr = output_buffer
 
             code = data.get('code')
             # get the value under "code" key
 
-            output = exec(code)
+            try:
+                exec(code)
+            except Exception as e:
+                # Capture the exception and its traceback
+                print(f"\nError: {str(e)}\n")
+                print(traceback.format_exc())
+
 
             output = output_buffer.getvalue()
             output = output.replace("\n", "<br>")  
             # Replace newlines with HTML break tags
 
             sys.stdout = sys.__stdout__ 
-            # Restore stdout
+            sys.stderr = sys.__stderr__
+            # Restore stdout and stderr
 
             return JsonResponse({"output": output})
+        
         if data.get("handler") == "PDB Command":
             command = data.get("pdb_command")
             # isolate the desired command

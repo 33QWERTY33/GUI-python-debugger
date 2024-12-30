@@ -9,7 +9,10 @@ import manage
 import diagrammer
 
 def start():
-    code_files = r"static\code_files"
+    sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "code_files")))
+    # This allows imports of the debug target directory to work in the front end code editor
+    
+    code_files = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "code_files"))
 
     collector.setup(code_files)
 
