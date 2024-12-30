@@ -25,13 +25,13 @@ def path_trimmer(file_paths, file_contents, folders, venv_path=""):
         trimmed_files.append(os.path.basename(file_paths[0]))
     else:
         for file in file_paths:
-            trimmed_files.append(file[file_prefix_len+1:])
+            trimmed_files.append(file[file_prefix_len:])
         # populate trimmed path lists
     if len(folders) == 1:
         trimmed_folders.append(os.path.basename(folders[0]))
     else:
         for folder in folders:
-            trimmed_folders.append(folder[folder_prefix_len+1:])
+            trimmed_folders.append(folder[folder_prefix_len:])
     
     return list(zip(trimmed_files, file_contents)), trimmed_folders, venv_path[folder_prefix_len+1:]
 

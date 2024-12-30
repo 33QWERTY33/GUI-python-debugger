@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: GUIPyDebugger
-Version: 1.0.2
+Version: 1.0.3
 Summary: GUI debugging server accessible on LAN connected devices through a browser
 Home-page: https://github.com/33QWERTY33/GUI-python-debugger
 Author: Curtis Jones
