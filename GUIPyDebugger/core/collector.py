@@ -79,7 +79,9 @@ def read(file_path):
 def collector(path, file_paths = [], file_contents = [], folder_paths = [], venv_path = []): #lists are instantiated on function definition
     results = os.listdir(path)
     if is_venv(path, results):
-        venv_path.append(path)
+        venv_path.append(os.path.abspath(path))
+        print("[INFO] Skipping recreation of virtual environment")
+        return
     for result in results:
         if "GUIPyDebugger" in result:  #don't duplicate the package that is running the script
             print("Skipping GUIPyDebugger package")

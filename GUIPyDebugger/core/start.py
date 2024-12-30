@@ -10,7 +10,7 @@ import diagrammer
 
 def start():
     sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "code_files")))
-    # This allows imports of the debug target directory to work in the front end code editor
+    # This allows imports of the debug target directory modules to work in the front end code editor
     
     code_files = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "code_files"))
 

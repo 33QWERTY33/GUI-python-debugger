@@ -5,6 +5,7 @@ import traceback
 
 from . import utils
 from diagrammer import views as project_info
+from diagrammer import venv_path
 
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -13,6 +14,10 @@ from django.views.decorators.csrf import csrf_exempt
 if project_info.entry_point_path:
     debug_shell = utils.Debugger(project_info.entry_point_path)
     # Create a programmatically controllable debugger instance
+    if len(venv_path) > 0:
+        sys.path.append(venv_path[0])
+    # if it was assigned in start.py, this allows skipping recreating the entire virtual environment (SLOWWWW)
+
 
 # Create your views here.
 @csrf_exempt

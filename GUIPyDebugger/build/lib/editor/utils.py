@@ -2,7 +2,6 @@ import os
 import sys
 import subprocess
 import time
-import traceback
 
 class Debugger():
     def __init__(self, filepath):
