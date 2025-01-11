@@ -97,7 +97,7 @@
                         <li class="hover-item">
                             <img src="../../static/images/view.jpg" height="25px" width="25px">
                             Hover to view {{ class.signature }} contents
-                            <span class="hover-info">{{ class.contents }}</span>
+                            <pre class="hover-info language-python"><code>{{ class.contents }}</code></pre>
                         </li>
                     </ul>
                 </details>
@@ -124,7 +124,7 @@
             <li class="hover-item">
                 <img src="../../static/images/view.jpg" height="25px" width="25px">
                 Hover to view {{ func.signature }} contents
-                <span class="hover-info">{{ func.contents }}</span>
+                <pre class="hover-info language-python"><code>{{ func.contents }}</code></pre>
             </li>
             {% endfor %}
         </ul>
