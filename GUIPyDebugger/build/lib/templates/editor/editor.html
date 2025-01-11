@@ -12,21 +12,29 @@
     
       const codeCellDiv = button.closest('.code-cell')
     
-      const code = codeCellDiv.querySelector('textarea')
+      const textarea = codeCellDiv.querySelector('textarea')
+
+      console.log(codeCellDiv)
+      console.log(textarea)
+      console.log(textarea.codeMirrorInstance)
     
+      const code = textarea.codeMirrorInstance.getValue();
+
+      console.log(code)
+      
       fetch(window.location.href, {
         method: 'POST',
-        body: JSON.stringify({ code: code.value, handler: 'Code Executor' }),
+        body: JSON.stringify({ code: code, handler: 'Code Executor' }),
         headers: {
           'Content-Type': 'application/json'
         }
       })
         .then((response) => response.json())
         .then((data) => {
+          console.log(data.output)
+
           const output = codeCellDiv.querySelector('.output')
           output.innerHTML = '<p>' + data.output + '</p>'
-
-          console.log("OUTPUT >> " + data.output)
         })
         .catch((error) => {
           console.error('[Error]', error)
@@ -157,22 +165,44 @@
   </div>
 
   <script>
+    const initialTextarea = document.querySelector('.code-cell textarea');
+
+    const code_mirror_instance = CodeMirror.fromTextArea(initialTextarea, {
+      mode: "python",
+      lineNumbers: true,
+      theme: "default"
+    });
+
+    initialTextarea.codeMirrorInstance = code_mirror_instance;
+    // Thank you so much to the creators of CodeMirror, this is awesome!
+  </script>
+
+  <script>
     document.getElementById('add-cell').addEventListener('click', function () {
       const editorContainer = document.getElementById('editor-container')
       const newCell = document.createElement('div')
     
       newCell.className = 'code-cell border rounded p-3 mb-3'
       newCell.innerHTML = `
-                          <h4>Experimentation Here</h4>
-                          <form action="" method="post"> 
-                            <textarea class="form-control" rows="5" id="code-cell" name="user_code"
-                            placeholder="Write your Python code here..."></textarea>
-                            <div class="text-end mt-2">
-                                <button class="btn btn-primary run-cell" onclick="send_code(event)">Run</button>
-                            </div>
-                          </form>
-                          <div class="output"></div>`
+                <h4>Experimentation Here</h4>
+                <form action="" method="post"> 
+                  <textarea class="form-control" rows="5" name="user_code" placeholder="Write your Python code here..."></textarea>
+                  <div class="text-end mt-2">
+                    <button class="btn btn-primary run-cell" onclick="send_code(event)">Run</button>
+                  </div>
+                </form>
+                <div class="output"></div>`;
       editorContainer.insertBefore(newCell, document.getElementById('add-cell'))
+
+      const newTextarea = newCell.querySelector('textarea');
+
+      const code_mirror_instance = CodeMirror.fromTextArea(newTextarea, {
+        mode: "python",
+        lineNumbers: true,
+        theme: "default"
+      });
+
+      newTextarea.codeMirrorInstance = code_mirror_instance;
     })
   </script>
 {% endblock %}

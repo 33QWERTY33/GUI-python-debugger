@@ -65,7 +65,8 @@ def editor(request):
             except NameError as e:
                 print("\n[ERROR] No entry point was placed in a python file")
                 print("Please place #ENTRY on line one of the file you would like to debug\n")
-                print("Take a look at the console output in setup, sometimes file permissions cause files to skip duplication hence this error")
+                
+                print("[WARNING] Take a look at the console output in setup, sometimes file permissions cause files to skip duplication hence this error")
                 print("Try running the gui_pdb command again from inside the directory you would like to debug.\n(gui_pdb defaults to the cwd when no argument is passed)")
                 output = "Please specify an entry point for the debug shell.\n\nIf you have, ensure file permissions are not causing issues"
 

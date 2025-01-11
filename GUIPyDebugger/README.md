@@ -1,7 +1,7 @@
 # Graphical Python Debugger
 
 ## Overview
-The **Graphical Python Debugger** is a network-enabled debugging tool designed to simplify the debugging process for Python applications. This application can be hosted on a local network, allowing multiple devices to participate collaboratively in debugging sessions. It also includes a diagram generation feature to provide a visual overview of the Python files within a specified directory.
+The **Graphical Python Debugger** is a network-enabled debugging tool designed to simplify the debugging process for Python applications. This application can be hosted on a local network, allowing multiple devices to participate concurrently in debugging sessions. It also includes a diagram generation feature to provide a visual overview of the Python files within a specified directory. This is a useful learning tool for beginners, and enables easy code reviews with just a command line tool.
 
 ---
 
@@ -18,6 +18,7 @@ The **Graphical Python Debugger** is a network-enabled debugging tool designed t
 ### 2. **Experimentation Window**
 - Allows users to execute Python code snippets for experimentation during debugging.
 - Provides a sandbox environment to test isolated pieces of code.
+- Syntax highlighting included
 
 ### 3. **Debugger Shell**
 - Facilitates step-by-step execution of Python files.
@@ -63,10 +64,10 @@ Or just run 'pip install GUIPyDebugger'
 ### Experimentation Window
 - Open the experimentation panel.
 - Write and execute Python snippets to test logic or functionality.
+- Keep in mind you can import any of your debug target modules or things in your venv
 
 ### Debugger Shell
 - Load the desired Python file.
-- Set breakpoints by clicking on specific lines in the source code view.
 - Use the controls to:
   - Step through the code.
   - Inspect and manipulate variables.
@@ -95,7 +96,7 @@ Contributions are welcome! Please follow these steps:
 ---
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) file for details.
 
 ---
 

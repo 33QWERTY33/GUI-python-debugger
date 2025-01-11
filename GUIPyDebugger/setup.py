@@ -7,7 +7,7 @@ with open(path.join(working_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="GUIPyDebugger",
-    version="1.0.4",
+    version="1.0.7",
     url="https://github.com/33QWERTY33/GUI-python-debugger",
     author="Curtis Jones",
     author_email="curlejo.4career@gmail.com",
